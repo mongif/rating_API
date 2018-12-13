@@ -4,6 +4,9 @@ import jinja2
 import os
 from flask import Flask, request, redirect, url_for
 from werkzeug.utils import secure_filename
+from openpyxl import load_workbook
+import string
+import json
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = set(['xlsx'])
@@ -26,6 +29,30 @@ def render_str(template,**params):
 def render(template, **kw):
    return render_str(template, **kw)
 
+
+def file_parse():
+	wb = load_workbook(filename = 'uploads\\rating_test.xlsx',data_only=True)
+	sheet = wb.active
+	col_names = list(string.ascii_uppercase)
+	col_names.append('AA') 
+	col_names.append('AB')
+	col_names.append('AC')
+	l = []
+	d = {}
+	keys = []
+	for i in col_names:
+	    keys.append(sheet['%s1'%i].value)
+	i = 0
+	#print('A{}:AC{}'.format(sheet.min_row,sheet.max_row))
+	for row in sheet.iter_rows('A{}:AC{}'.format(sheet.min_row + 1,sheet.max_row)):
+	    i = 0
+	    for cell in row:
+	        d[keys[i]] = cell.value
+	        i+=1
+	    l.append(d)
+	    d = {}
+	return l
+
 @app.route("/" , methods=['GET', 'POST'])
 def hello():
 	if request.method == 'POST':
@@ -42,6 +69,15 @@ def hello():
 			return redirect(url_for('uploaded_file',filename=filename))
 	else:		
 		return render("index.html")
+def search_name(name):
+	for item in file_parse():
+		if item["Фамилия, имя, отчество"] == name:
+			return item
+@app.route("/rating" , methods=['GET', 'POST'])
+def get_data():
+	name = request.args.get('name')
+	d = json.dumps(search_name(name), ensure_ascii=False).encode('utf-8')
+	return d
 
 @app.route("/uploaded_file:<filename>" , methods=['GET', 'POST'])
 def uploaded_file(filename):
