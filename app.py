@@ -15,6 +15,17 @@ ALLOWED_EXTENSIONS = set(['xlsx'])
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+def avr(d):
+	summ = 0
+	u = 0
+	for i in d :
+		try:
+			summ += i["Ср.рейтинг"]
+			u += 1
+		except:
+			pass
+	return summ/u if u != 0 else 0
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -51,6 +62,12 @@ def file_parse():
 	        i+=1
 	    l.append(d)
 	    d = {}
+	z = avr(l)
+	for i in range(len(l)):
+		try:
+			l[i]["Откл. от ср."]=-z+float(l[i]["Ср.рейтинг"])
+		except:
+			pass
 	return l
 
 @app.route("/" , methods=['GET', 'POST'])
