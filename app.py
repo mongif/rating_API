@@ -8,6 +8,7 @@ from openpyxl import load_workbook
 import string
 import json
 from flask import abort
+from datetime import datetime
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = set(['xlsx'])
@@ -81,7 +82,7 @@ def hello():
 			flash('No selected file')
 			return redirect(request.url)
 		if file and allowed_file(file.filename):
-			filename = secure_filename(file.filename)
+			filename = secure_filename(datetime.now().strftime(("%Y_%m_%d.xlsx")))
 			file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 			return redirect(url_for('uploaded_file',filename=filename))
 	else:		
