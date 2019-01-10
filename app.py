@@ -7,10 +7,11 @@ from werkzeug.utils import secure_filename
 from openpyxl import load_workbook
 import string
 import json
+from flask import abort
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = set(['xlsx'])
-
+SECRETKEY = 'qwerty'
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -54,7 +55,6 @@ def file_parse():
 	for i in col_names:
 	    keys.append(sheet['%s1'%i].value)
 	i = 0
-	#print('A{}:AC{}'.format(sheet.min_row,sheet.max_row))
 	for row in sheet.iter_rows('A{}:AC{}'.format(sheet.min_row + 1,sheet.max_row)):
 	    i = 0
 	    for cell in row:
@@ -93,8 +93,17 @@ def search_name(name):
 @app.route("/rating" , methods=['GET', 'POST'])
 def get_data():
 	name = request.args.get('name')
-	d = json.dumps(search_name(name), ensure_ascii=False).encode('utf-8')
-	return d
+	key = request.args.get('key')
+	if key == SECRETKEY:
+		d = json.dumps(search_name(name), ensure_ascii=False).encode('utf-8')
+		return d
+	else:
+		abort(404)
+	
+@app.errorhandler(404)
+def page_404(e):
+	return render('404.html'), 404
+
 
 @app.route("/uploaded_file:<filename>" , methods=['GET', 'POST'])
 def uploaded_file(filename):
