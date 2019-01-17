@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template, flash
 from jinja2 import Template
 import jinja2
 import os
@@ -42,9 +42,12 @@ def render_str(template,**params):
 def render(template, **kw):
    return render_str(template, **kw)
 
+def file_name():
+	files=os.listdir('uploads')
+	return 	sorted(files,reverse=True)[0]
 
 def file_parse():
-	wb = load_workbook(filename = 'uploads\\rating_test.xlsx',data_only=True)
+	wb = load_workbook(filename = 'uploads\\' + file_name() ,data_only=True)
 	sheet = wb.active
 	col_names = list(string.ascii_uppercase)
 	col_names.append('AA') 
