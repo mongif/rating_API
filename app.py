@@ -44,6 +44,7 @@ def render(template, **kw):
 
 def file_name():
 	files=os.listdir('uploads')
+	DeleteFiles()
 	return 'uploads\\' + sorted(files,reverse=True)[0]
 
 def file_parse():
@@ -73,6 +74,20 @@ def file_parse():
 		except:
 			pass
 	return l
+
+def DeleteFiles():
+	files=os.listdir('uploads')
+	sorted(files, reverse=True)
+	if len(files)>2:
+		for i in range (len(files)):
+			files[i] = datetime.strptime(files[i][:-5],"%Y_%m_%d")
+		print(files[0]-files[2])
+		x = files[0]-files[2]
+		if x.days<-360:
+			os.remove('uploads//' + datetime.strftime(files[0],'%Y_%m_%d') + '.xlsx')
+		else:
+			os.remove('uploads//' + datetime.strftime(files[1],'%Y_%m_%d') + '.xlsx')
+
 
 @app.route("/" , methods=['GET', 'POST'])
 def hello():
