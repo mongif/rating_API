@@ -18,8 +18,10 @@
 	</ol>
 <h2> Примеры запросов </h2>
 <h3> Запрос на языке Python </h3>
+
 ```python
 import requests
 payload = {'name':'Петров Петр Петрович', 'key':'key'}
-r = requests.get('http://ratingapi.pythonanywhere.com/rating', params = payload)```
+r = requests.get('http://ratingapi.pythonanywhere.com/rating', params = payload)
+```
 
