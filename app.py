@@ -46,6 +46,11 @@ def file_name():
 	files=os.listdir('uploads')
 	DeleteFiles()
 	return 'uploads\\' + sorted(files,reverse=True)[0]
+def file_name2():
+	files=os.listdir('uploads')
+	DeleteFiles()
+	return 'uploads\\' + sorted(files,reverse=True)[1]
+
 
 def file_parse():
 	wb = load_workbook(filename = file_name(),data_only=True)
@@ -68,9 +73,62 @@ def file_parse():
 	    l.append(d)
 	    d = {}
 	z = avr(l)
+	wb = load_workbook(filename = file_name2(),data_only=True)
+	sheet = wb.active
+	col_names = list(string.ascii_uppercase)
+	col_names.append('AA') 
+	col_names.append('AB')
+	col_names.append('AC')
+	ll=[]
+	keys = []
+	for i in col_names:
+	    keys.append(sheet['%s1'%i].value)
+	i = 0
+	for row in sheet.iter_rows('A{}:AC{}'.format(sheet.min_row + 1,sheet.max_row)):
+	    i = 0
+	    for cell in row:
+	        d[keys[i]] = cell.value
+	        i+=1
+	    ll.append(d)
+	    d = {}  
+
+	for i in range(len(l)):
+		try:
+			print(l[i]["Ср.рейтинг"])
+			print(ll[i]["Ср.рейтинг"])
+
+			l[i]["Разница с пред."]=float(l[i]["Ср.рейтинг"])-float(ll[i]["Ср.рейтинг"])
+			l[i]["Откл. от ср."]=-z+float(l[i]["Ср.рейтинг"])
+		except:
+			pass
+
+	return l
+
+def file_parse2():
+	wb = load_workbook(filename = file_name2(),data_only=True)
+	sheet = wb.active
+	col_names = list(string.ascii_uppercase)
+	col_names.append('AA') 
+	col_names.append('AB')
+	col_names.append('AC')
+	l = []
+	d = {}
+	keys = []
+	for i in col_names:
+	    keys.append(sheet['%s1'%i].value)
+	i = 0
+	for row in sheet.iter_rows('A{}:AC{}'.format(sheet.min_row + 1,sheet.max_row)):
+	    i = 0
+	    for cell in row:
+	        d[keys[i]] = cell.value
+	        i+=1
+	    l.append(d)
+	    d = {}
+	z = avr(l)
 	for i in range(len(l)):
 		try:
 			l[i]["Откл. от ср."]=-z+float(l[i]["Ср.рейтинг"])
+			l[i+1]["Разница с пред."]=0
 		except:
 			pass
 	return l
@@ -109,13 +167,19 @@ def search_name(name):
 	for item in file_parse():
 		if item["Фамилия, имя, отчество"] == name:
 			return item
+
+def search_name2(name):
+	for item in file_parse2():
+		if item["Фамилия, имя, отчество"] == name:
+			return item
+
 @app.route("/rating" , methods=['GET', 'POST'])
 def get_data():
 	name = request.args.get('name')
 	key = request.args.get('key')
 	if key == SECRETKEY:
 		d = json.dumps(search_name(name), ensure_ascii=False).encode('utf-8')
-		return d
+		return (d)
 	else:
 		abort(404)
 	
